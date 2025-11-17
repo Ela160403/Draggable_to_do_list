@@ -1,115 +1,171 @@
-/* =========================
-   JS Application
-   ========================= */
+/* =========================================================================
+   DRAGGABLE TO-DO APPLICATION - Complete JavaScript Logic
+   =========================================================================
+   
+   This file implements the entire application including:
+   - Data model and localStorage persistence
+   - DOM rendering from data
+   - Native HTML5 drag-and-drop handling
+   - CRUD operations (Create, Read, Update, Delete)
+   - Keyboard navigation (Arrow keys, Enter, Delete)
+   - Accessibility features (ARIA labels, screen reader announcements)
+   
+   SECTION BREAKDOWN:
+   1. Storage & Configuration: Data persistence and helper functions
+   2. DOM Rendering: Create and update visual elements
+   3. Drag & Drop: Native HTML5 drag event handlers
+   4. CRUD Operations: Create, edit, delete task functions
+   5. Keyboard Navigation: Arrow keys and keyboard shortcuts
+   6. Application Initialization: Startup and event setup
+   
+   ========================================================================= */
 
-/* storage key */
+/* Storage key for localStorage - identifies the saved data location */
 const STORAGE_KEY = 'draggable-todo-board-v1';
 
-/* DOM elements */
-const boardEl = document.getElementById('board');
-const openCreateBtn = document.getElementById('openCreate');
-const modalBackdrop = document.getElementById('modalBackdrop');
-const taskForm = document.getElementById('taskForm');
-const taskTitleInput = document.getElementById('taskTitle');
-const taskDescInput = document.getElementById('taskDesc');
-const taskColumnSelect = document.getElementById('taskColumn');
-const modalTitle = document.getElementById('modalTitle');
-const cancelModalBtn = document.getElementById('cancelModal');
-const announcer = document.getElementById('announcer');
-const toast = document.getElementById('toast');
-const titleInputInline = document.getElementById('titleInput');
-const columnSelectInline = document.getElementById('columnSelect');
-const clearStorageBtn = document.getElementById('clearStorage');
+/* ========== DOM ELEMENT REFERENCES ========== */
+/* Cache HTML element references for efficient access throughout app */
 
-/* in-memory board structure: { todo: [], inprogress: [], done: [] }
-   each task: { id, title, description, column, createdAt, updatedAt } */
+const boardEl = document.getElementById('board');          // Board container
+const openCreateBtn = document.getElementById('openCreate');        // Add Task button
+const modalBackdrop = document.getElementById('modalBackdrop');     // Modal overlay
+const taskForm = document.getElementById('taskForm');               // Task form
+const taskTitleInput = document.getElementById('taskTitle');        // Title input field
+const taskDescInput = document.getElementById('taskDesc');          // Description textarea
+const taskColumnSelect = document.getElementById('taskColumn');     // Column dropdown in modal
+const modalTitle = document.getElementById('modalTitle');           // Modal heading
+const cancelModalBtn = document.getElementById('cancelModal');      // Cancel button
+const announcer = document.getElementById('announcer');             // Screen reader region
+const toast = document.getElementById('toast');                     // Toast notification
+const titleInputInline = document.getElementById('titleInput');     // Quick-add title input
+const columnSelectInline = document.getElementById('columnSelect'); // Quick-add column dropdown
+const clearStorageBtn = document.getElementById('clearStorage');    // Clear all button
+
+/* ========== DATA MODEL ========== */
+/* In-memory board state: stores all tasks organized by column */
+/* Structure: { todo: [...], inprogress: [...], done: [...] } */
+/* Each task: { id, title, description, column, createdAt, updatedAt } */
 let board = { todo: [], inprogress: [], done: [] };
 
-/* currently editing task id (null for create) */
+/* Track which task is being edited (null if creating new) */
 let editingTaskId = null;
 
-/* --- helpers --- */
-function genId(){ return 't_' + Math.random().toString(36).slice(2,10); }
-function nowISO(){ return new Date().toISOString(); }
+/* ========== UTILITY FUNCTIONS ========== */
 
-/* load from storage with error handling */
+/* Generate unique task ID: 't_' prefix + random alphanumeric string */
+function genId(){ 
+  return 't_' + Math.random().toString(36).slice(2,10); 
+}
+
+/* Get current timestamp in ISO 8601 format (for createdAt, updatedAt fields) */
+function nowISO(){ 
+  return new Date().toISOString(); 
+}
+
+/* ========== STORAGE FUNCTIONS ========== */
+
+/* Load tasks from browser localStorage and populate board data model */
+/* Returns true if load successful, false if no data or corrupted */
 function loadFromStorage(){
   const raw = localStorage.getItem(STORAGE_KEY);
-  if(!raw) return false;
+  if(!raw) return false; // No saved data exists
+  
   try{
     const parsed = JSON.parse(raw);
+    
+    // Validate JSON structure has all required columns
     if(parsed && typeof parsed === 'object' && parsed.todo && parsed.inprogress && parsed.done){
       board = parsed;
-      // ensure arrays
+      // Ensure columns are arrays (defensive programming)
       board.todo = board.todo || [];
       board.inprogress = board.inprogress || [];
       board.done = board.done || [];
       return true;
     } else {
-      throw new Error('Invalid shape');
+      throw new Error('Invalid data structure');
     }
   }catch(e){
-    // fallback: clear corrupt data banner via toast
-    showToast('Saved data could not be loaded. Starting fresh. [Clear saved]');
-    localStorage.removeItem(STORAGE_KEY);
+    // Data is corrupted - inform user and start fresh
+    showToast('Saved data could not be loaded. Starting fresh.');
+    localStorage.removeItem(STORAGE_KEY); // Clear corrupted data
     board = { todo: [], inprogress: [], done: [] };
     return false;
   }
 }
 
-/* save to localStorage with error handling */
+/* Save current board state to browser localStorage as JSON */
+/* Called after every data modification (create, move, delete, edit) */
+/* Includes error handling for storage quota exceeded scenarios */
 function saveToStorage(){
   try{
     localStorage.setItem(STORAGE_KEY, JSON.stringify(board));
   }catch(e){
+    // Storage quota exceeded or localStorage disabled
     showToast('Unable to save changes; please check browser storage settings.');
     console.error('LocalStorage save error', e);
   }
 }
 
-/* show a short toast */
+/* ========== NOTIFICATION FUNCTIONS ========== */
+
+/* Show toast notification for user feedback */
+/* Automatically hides after specified duration (default: 1400ms) */
 let toastTimer = null;
 function showToast(msg, duration=1400){
-  toast.textContent = msg;
-  toast.style.display = 'block';
-  if(toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>{ toast.style.display='none'; }, duration);
+  toast.textContent = msg;              // Set notification text
+  toast.style.display = 'block';        // Show the toast
+  if(toastTimer) clearTimeout(toastTimer); // Clear previous timer
+  
+  // Auto-hide after duration
+  toastTimer = setTimeout(()=>{ 
+    toast.style.display='none'; 
+  }, duration);
 }
 
-/* announce for screen readers */
+/* Announce message to screen reader users via aria-live region */
+/* Provides audio feedback for accessibility */
 function announce(msg){
   announcer.textContent = msg;
 }
 
-/* --- rendering --- */
+/* ========== SECTION 2: RENDERING ========== */
+
+/* Column metadata: defines the three kanban columns */
+/* Modify this array to change column names or add new columns */
 const columnsMeta = [
-  {key:'todo', title:'To Do'},
-  {key:'inprogress', title:'In Progress'},
-  {key:'done', title:'Done'}
+  {key:'todo', title:'To Do'},            // Column 1: Tasks to begin
+  {key:'inprogress', title:'In Progress'}, // Column 2: Tasks being worked on
+  {key:'done', title:'Done'}              // Column 3: Completed tasks
 ];
 
+/* Create a single column element with header, task list, and drag-drop listeners */
 function createColumnEl(colKey, colTitle){
+  // Create section element for the column
   const col = document.createElement('section');
   col.className = 'column';
-  col.dataset.column = colKey;
+  col.dataset.column = colKey; // Store column key for identification
   col.setAttribute('aria-label', colTitle);
   col.setAttribute('role','region');
 
+  // Create column header with title and add button
   const header = document.createElement('div');
   header.className = 'col-title';
   header.innerHTML = `<span>${colTitle}</span><button class="secondary" title="Add to ${colTitle}" aria-label="Add task to ${colTitle}">＋</button>`;
+  
+  // Attach click listener to add button
   const addBtn = header.querySelector('button');
   addBtn.addEventListener('click', ()=>openModalForCreate(colKey));
   col.appendChild(header);
 
+  // Create task list container (where task cards go)
   const taskList = document.createElement('div');
   taskList.className = 'task-list';
   taskList.dataset.column = colKey;
-  taskList.setAttribute('aria-live','polite');
+  taskList.setAttribute('aria-live','polite'); // Announce changes to screen readers
   taskList.setAttribute('role','list');
   col.appendChild(taskList);
 
-  /* dragover/drop listeners */
+  // Attach drag-and-drop event listeners to this column
   makeColumnDroppable(col, taskList);
 
   return col;
@@ -521,8 +577,8 @@ modalBackdrop.addEventListener('click', (e)=>{
 function deleteTaskWithConfirm(id){
   const t = getTaskById(id);
   if(!t) return;
-  const ok = confirm(`Are you sure you want to delete "${t.title}"?`);
-  if(!ok) return;
+  //const ok = confirm(`Are you sure you want to delete "${t.title}"?`);
+  //if(!ok) return;
   const arr = board[t.column];
   const idx = arr.findIndex(x=>x.id===id);
   if(idx>-1) arr.splice(idx,1);

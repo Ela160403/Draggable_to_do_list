@@ -1,13 +1,40 @@
 <!doctype html>
+<!-- ================================================================
+     Draggable To-Do Application
+     
+     This HTML file provides the semantic structure for a modern
+     task management application with drag-and-drop functionality.
+     
+     STRUCTURE:
+     1. Header: Title and description
+     2. Controls: Quick task input and column selector
+     3. Board: Three columns (To Do, In Progress, Done)
+     4. Modal: Dialog for creating/editing tasks
+     5. Accessibility: Screen reader region and announcements
+     6. Scripts: JavaScript application logic
+     
+     All styling is in styles.css
+     All logic is in script.js
+     ================================================================ -->
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Draggable To-Do</title>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="styles.css">
+  <!-- Character encoding for proper text rendering -->
+  <meta charset="utf-8" />
+  
+  <!-- Viewport for responsive design on mobile devices -->
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  
+  <!-- Page title shown in browser tab -->
+  <title>Draggable To-Do</title>
+  
+  <!-- Preconnect to Google Fonts for faster loading -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Link to external CSS stylesheet -->
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Main application container with max-width and centered layout -->
   <div class="container" id="app">
     <header>
       <h1>Draggable To-Do</h1>

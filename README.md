@@ -56,6 +56,10 @@ Application logic (684 lines) with comprehensive error handling:
 - **Storage**: localStorage with JSON serialization and error handling
 - **Accessibility**: ARIA announcements for screen readers
 
+## Live Demo
+
+**[Open Live Demo](https://draggable-to-do-list-weld.vercel.app/)** - No installation required, runs instantly in your browser.
+
 ## How to Run
 
 ### Option 1: Local HTTP Server (Python)
@@ -313,10 +317,6 @@ const columnsMeta = [
 ### Mobile Display Issues
 - Zoom out if tasks appear cut off (Ctrl+Minus)
 - Ensure viewport meta tag is recognized by browser
-
-## License
-
-This project is open source. See LICENSE file for details (optional).
 
 ## Credits
 
