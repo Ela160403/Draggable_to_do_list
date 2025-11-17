@@ -19,16 +19,15 @@ A modern, accessible task management application built with vanilla JavaScript, 
 ## Project Structure
 
 ```
-├── index.html       # HTML structure (semantic markup with ARIA attributes)
+├── task.html       # HTML structure (semantic markup with ARIA attributes)
 ├── styles.css       # All styling (CSS variables, responsive design, animations)
 ├── script.js        # Application logic (drag-drop, storage, state management)
 ├── README.md        # This file
-└── LICENSE          # Optional license
 ```
 
 ## File Descriptions
 
-### index.html
+### task.html
 Semantic HTML structure with proper ARIA attributes for accessibility. Contains:
 - Header with app title and description
 - Quick-add controls (title input, column selector, Add Task button)
@@ -67,14 +66,6 @@ python -m http.server 8000
 ```
 
 Then open your browser to: **http://localhost:8000/index.html**
-
-### Option 2: Using Node.js (http-server)
-
-```bash
-npm install -g http-server
-cd c:\Users\ela16\Desktop\assign
-http-server
-```
 
 ### Option 3: Direct File Open (Limited)
 
@@ -328,7 +319,7 @@ Built with vanilla JavaScript, HTML5, and CSS3. No dependencies required.
 For issues or feature requests, review the code in:
 - `script.js` - Application logic
 - `styles.css` - Styling
-- `index.html` - Structure
+- `task.html` - Structure
 
 Check browser console (F12) for helpful error messages.
 
