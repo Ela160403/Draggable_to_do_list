@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Draggable To-Do</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container" id="app">
+    <header>
+      <h1>Draggable To-Do</h1>
+      <p class="subtitle">Create, edit, delete and drag tasks between columns.</p>
+    </header>
+
+    <!-- Controls row -->
+    <div class="controls" role="region" aria-label="Task controls">
+      <div class="grow">
+        <input id="titleInput" class="input" type="text" placeholder="Task title (required)" aria-label="Task title">
+        <select id="columnSelect" class="input" aria-label="Column select">
+          <option value="todo">To Do</option>
+          <option value="inprogress">In Progress</option>
+          <option value="done">Done</option>
+        </select>
+        <button id="openCreate" class="primary" aria-haspopup="dialog">Add Task</button>
+      </div>
+      <button id="clearStorage" class="secondary" title="Clear saved data">Clear Saved</button>
+    </div>
+
+    <!-- Board -->
+    <main class="board" id="board" aria-live="polite">
+      <!-- Columns inserted by JS -->
+    </main>
+
+    <!-- Modal for create/edit -->
+    <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="modal" role="document">
+        <h2 id="modalTitle" style="margin:0 0 8px 0;font-size:16px">Create Task</h2>
+        <form id="taskForm">
+          <div class="row">
+            <label class="field-label" for="taskTitle">Title</label>
+            <input id="taskTitle" class="input" required aria-required="true" placeholder="Write title">
+            <div id="titleError" style="color:var(--danger);font-size:12px;display:none;margin-top:6px">Title is required.</div>
+          </div>
+          <div class="row">
+            <label class="field-label" for="taskDesc">Description</label>
+            <textarea id="taskDesc" placeholder="Optional description"></textarea>
+          </div>
+          <div class="row">
+            <label class="field-label" for="taskColumn">Column</label>
+            <select id="taskColumn" class="input">
+              <option value="todo">To Do</option>
+              <option value="inprogress">In Progress</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+          <div class="actions">
+            <button type="button" class="secondary" id="cancelModal">Cancel</button>
+            <button type="submit" class="primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- aria-live region for announcements -->
+    <div id="announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- toast -->
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </div>
+
+<script src="script.js">
+</script>
+</body>
+</html>
