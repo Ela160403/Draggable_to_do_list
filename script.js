@@ -1,24 +1,4 @@
-/* =========================================================================
-   DRAGGABLE TO-DO APPLICATION - Complete JavaScript Logic
-   =========================================================================
-   
-   This file implements the entire application including:
-   - Data model and localStorage persistence
-   - DOM rendering from data
-   - Native HTML5 drag-and-drop handling
-   - CRUD operations (Create, Read, Update, Delete)
-   - Keyboard navigation (Arrow keys, Enter, Delete)
-   - Accessibility features (ARIA labels, screen reader announcements)
-   
-   SECTION BREAKDOWN:
-   1. Storage & Configuration: Data persistence and helper functions
-   2. DOM Rendering: Create and update visual elements
-   3. Drag & Drop: Native HTML5 drag event handlers
-   4. CRUD Operations: Create, edit, delete task functions
-   5. Keyboard Navigation: Arrow keys and keyboard shortcuts
-   6. Application Initialization: Startup and event setup
-   
-   ========================================================================= */
+
 
 /* Storage key for localStorage - identifies the saved data location */
 const STORAGE_KEY = 'draggable-todo-board-v1';
@@ -573,7 +553,7 @@ modalBackdrop.addEventListener('click', (e)=>{
   }
 });
 
-/* Delete with confirmation */
+/* Delete   */
 function deleteTaskWithConfirm(id){
   const t = getTaskById(id);
   if(!t) return;
